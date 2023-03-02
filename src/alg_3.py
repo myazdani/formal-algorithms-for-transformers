@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-from position_embedding import PositionEmbedding
-from token_embedding import TokenEmbedding
+from alg_2 import PositionEmbedding
+from alg_1 import TokenEmbedding
 import numpy as np
 
 

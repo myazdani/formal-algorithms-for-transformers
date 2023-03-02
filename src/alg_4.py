@@ -3,8 +3,8 @@ import torch.nn as nn
 from torch.nn import functional as F
 import math
 
-from position_embedding import PositionEmbedding
-from token_embedding import TokenEmbedding
+from alg_2 import PositionEmbedding
+from alg_1 import TokenEmbedding
 from alg_3 import SingleQueryAttention
 
 
