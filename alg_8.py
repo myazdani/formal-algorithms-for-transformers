@@ -10,6 +10,16 @@ from alg_7 import TokenUnembedding
 
 
 class EDTransformer(nn.Module):
+
+    class ResNet(nn.Module):
+        def __init__(self, module):
+            super().__init__()
+            self.module = module
+
+        def forward(self, inputs):
+            return self.module(inputs) + inputs
+
+
     def __init__(self, embed_dim, mlp_dim, max_seq_len, L_enc, L_dec, vocab_size, num_heads):
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
@@ -23,14 +33,15 @@ class EDTransformer(nn.Module):
                                                           input_dim=embed_dim,
                                                           attention_dim=embed_dim,
                                                           output_dim=embed_dim)
-            encoder_layers.append(multi_head_attention)
+            encoder_layers.append(EDTransformer.ResNet(multi_head_attention))
             layer_norm_1 = LayerNorm(embed_dim)
             encoder_layers.append(layer_norm_1)
-            fc1 = nn.Linear(embed_dim, mlp_dim)
-            encoder_layers.append(fc1)
-            encoder_layers.append(nn.ReLU())
-            fc2 = nn.Linear(mlp_dim, embed_dim)
-            encoder_layers.append(fc2)
+            mlp = nn.Sequential(
+                nn.Linear(embed_dim, mlp_dim),
+                nn.ReLU(),
+                nn.Linear(mlp_dim, embed_dim)
+            )
+            encoder_layers.append(EDTransformer.ResNet(mlp))
             layer_norm_2 = LayerNorm(embed_dim)
             encoder_layers.append(layer_norm_2)
         self.encoder = nn.Sequential(*encoder_layers)
@@ -41,23 +52,29 @@ class EDTransformer(nn.Module):
                                                           input_dim=embed_dim,
                                                           attention_dim=embed_dim,
                                                           output_dim=embed_dim)   
-            decoder_layers.append(multi_head_attention)
+            decoder_layers.append(EDTransformer.ResNet(multi_head_attention))
             layer_norm_3 = LayerNorm(embed_dim)
             decoder_layers.append(layer_norm_3)
             multi_head_attention = MHAttentionInefficient(num_heads=num_heads,
                                                           input_dim=embed_dim,
                                                           attention_dim=embed_dim,
                                                           output_dim=embed_dim)  
-            decoder_layers.append(multi_head_attention)
+            decoder_layers.append(EDTransformer.ResNet(multi_head_attention))
             layer_norm_4 = LayerNorm(embed_dim)
             decoder_layers.append(layer_norm_4)
-            fc3 = nn.Linear(embed_dim, mlp_dim)
-            decoder_layers.append(fc3)
-            decoder_layers.append(nn.ReLU())
-            fc4 = nn.Linear(mlp_dim, embed_dim)
-            decoder_layers.append(fc4)
+            mlp = nn.Sequential(
+                nn.Linear(embed_dim, mlp_dim),
+                nn.ReLU(),
+                nn.Linear(mlp_dim, embed_dim)
+            )
+            decoder_layers.append(EDTransformer.ResNet(mlp))
             layer_norm_5 = LayerNorm(embed_dim)
             decoder_layers.append(layer_norm_5)
         self.decoder = nn.Sequential(*decoder_layers)
 
         self.unembed = TokenUnembedding(vocab_size, embed_dim)
+
+
+    def forward(self, z):
+        z = self.token_emb(z) + self.pos_emb(z)
+        
