@@ -21,6 +21,7 @@ class EDTransformer(nn.Module):
 
 
     def __init__(self, embed_dim, mlp_dim, max_seq_len, L_enc, L_dec, vocab_size, num_heads):
+        super().__init__()
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim
         self.max_seq_len = max_seq_len
