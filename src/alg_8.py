@@ -16,8 +16,11 @@ class EDTransformer(nn.Module):
             super().__init__()
             self.module = module
 
-        def forward(self, inputs):
-            return self.module(inputs) + inputs
+        def forward(self, x, y=None):
+            if y is not None:
+                return self.module(x,y) + x
+            else:
+                return self.module(x) + x
 
 
     def __init__(self, embed_dim, mlp_dim, max_seq_len, L_enc, L_dec, vocab_size, num_heads):
@@ -74,13 +77,22 @@ class EDTransformer(nn.Module):
         self.unembed = TokenUnembedding(vocab_size, embed_dim)
 
 
-    def forward(self, z):
+    def forward(self, z, x=None):
         z = self.token_emb(z) #+ self.pos_emb(z)
         for name, layer in self.encoder_layers.named_children():
-            print(layer)
-            import pdb
-            pdb.set_trace()
-            break
+            if "attention" in name:
+                z = layer(z, z)
+            else:
+                z = layer(z)
+        x = self.token_emb(x) # stll need pos embed
+        for name, layer in self.decoder_layers.named_children():
+            if "dec_attention1" in name:
+                x = layer(x,x) # needs proper mask
+            elif "dec_attention2" in name:
+                x = layer(x,z) # needs proper mask
+            else:
+                x = layer(x)
+        return self.unembed(x) # still need softmax?
 
 
 if __name__ == "__main__":
@@ -91,3 +103,4 @@ if __name__ == "__main__":
                                 L_dec=3, L_enc=3, vocab_size=vocab_size, num_heads=3)
 
     idx = torch.tensor([43, 32])  
+    print(ed_seq2seq(idx, idx))
