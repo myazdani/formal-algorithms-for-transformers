@@ -6,8 +6,8 @@ class LayerNorm(nn.Module):
     def __init__(self, dim):
         super().__init__()
         self.dim = dim # embedding dimension
-        self.scale = nn.Parameter(torch.FloatTensor(self.dim))
-        self.offset = nn.Parameter(torch.FloatTensor(self.dim))
+        self.scale = nn.Parameter(torch.ones(self.dim))
+        self.offset = nn.Parameter(torch.zeros(self.dim))
 
     def forward(self, x):
         m = x.mean()
