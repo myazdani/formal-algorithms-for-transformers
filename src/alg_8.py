@@ -78,13 +78,13 @@ class EDTransformer(nn.Module):
 
 
     def forward(self, z, x=None):
-        z = self.token_emb(z) #+ self.pos_emb(z)
+        z = self.token_emb(z) + self.pos_emb(len(z))
         for name, layer in self.encoder_layers.named_children():
             if "attention" in name:
                 z = layer(z, z)
             else:
                 z = layer(z)
-        x = self.token_emb(x) # stll need pos embed
+        x = self.token_emb(x) + self.pos_emb(len(x))
         for name, layer in self.decoder_layers.named_children():
             if "dec_attention1" in name:
                 x = layer(x,x) # needs proper mask
@@ -102,5 +102,6 @@ if __name__ == "__main__":
     ed_seq2seq = EDTransformer(embed_dim=embed_dim, mlp_dim=32, max_seq_len=max_seq_len,
                                 L_dec=3, L_enc=3, vocab_size=vocab_size, num_heads=3)
 
-    idx = torch.tensor([43, 32])  
-    print(ed_seq2seq(idx, idx))
+    z_ids = torch.tensor([43, 32, 21])  
+    x_ids = torch.tensor([4, 13, 1])  
+    print(ed_seq2seq(z_ids, x_ids))
