@@ -16,9 +16,11 @@ class EDTransformer(nn.Module):
             super().__init__()
             self.module = module
 
-        def forward(self, x, y=None):
-            if y is not None:
+        def forward(self, x, y=None, mask=None):
+            if (y is not None) and (mask is None):
                 return self.module(x,y) + x
+            elif (y is not None) and (mask is not None):
+                return self.module(x,y, mask) + x
             else:
                 return self.module(x) + x
 
@@ -84,12 +86,14 @@ class EDTransformer(nn.Module):
                 z = layer(z, z)
             else:
                 z = layer(z)
+        lx = len(x)
         x = self.token_emb(x) + self.pos_emb(len(x))
         for name, layer in self.decoder_layers.named_children():
             if "dec_attention1" in name:
-                x = layer(x,x) # needs proper mask
+                mask = torch.tril(torch.ones(lx, lx))
+                x = layer(x,x, mask.masked_fill(mask==0, float('-inf'))) 
             elif "dec_attention2" in name:
-                x = layer(x,z) # needs proper mask
+                x = layer(x,z)
             else:
                 x = layer(x)
         return self.unembed(x) # still need softmax?
