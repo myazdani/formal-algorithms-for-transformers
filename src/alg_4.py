@@ -43,8 +43,10 @@ def main():
     position_embeddings = pos_emb(2)
     x = position_embeddings + token_embeddings
     print(x.shape)
-    x_emb = attention(x,x)
+    mask = torch.tril(torch.ones(len(idx), len(idx)))
+    x_emb = attention(x,x, mask.masked_fill(mask==0, float('-inf')))
     print(x_emb.shape)
+    print(x_emb)
 
 
 if __name__ == "__main__":
