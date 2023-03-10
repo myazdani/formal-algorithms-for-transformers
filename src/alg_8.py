@@ -96,7 +96,7 @@ class EDTransformer(nn.Module):
                 x = layer(x,z)
             else:
                 x = layer(x)
-        return self.unembed(x) # still need softmax?
+        return self.unembed(x) 
 
 
 if __name__ == "__main__":
