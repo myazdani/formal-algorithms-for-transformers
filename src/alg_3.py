@@ -16,15 +16,15 @@ class SingleQueryAttention(nn.Module):
         self.query = nn.Linear(input_dim, atten_dim)
         self.value = nn.Linear(input_dim, output_dim)
 
-    def forward(self, current_tokens, context_tokens):
-        q = self.query(current_tokens).T
-        k = self.key(context_tokens).T
-        v = self.value(context_tokens).T
+    def forward(self, current_token, context_tokens):
+        q = self.query(current_token)
+        k = self.key(context_tokens)
+        v = self.value(context_tokens)
 
-        att = q.T @ k / np.sqrt(self.atten_dim)
+        att = torch.einsum('ijk,ilk->ilk', [q,k]) / np.sqrt(self.atten_dim)
         att = F.softmax(att, dim=-1)
-        v = v @ att
-        return v.T
+        v = torch.einsum('ijk,ijk->ik', [att, v])
+        return v[:,None,:]
 
 def main():
     max_seq_len = 512
@@ -34,12 +34,12 @@ def main():
     pos_emb = PositionEmbedding(max_seq_len, embed_dim)
     attention = SingleQueryAttention(50, 50, 50)
 
-    idx = torch.tensor([43, 32])  
-    token_embeddings = token_emb(idx)
-    position_embeddings = pos_emb(2)
-    x = position_embeddings + token_embeddings
-    print(x.shape)
-    x_emb = attention(x,x)
+    batch_size=32
+    current_token = torch.randint(0,vocab_size, size = (batch_size, 1)) 
+    context_tokens = torch.randint(0,vocab_size, size = (batch_size, max_seq_len)) 
+    current_token_embeddings = token_emb(current_token) + pos_emb(1)
+    context_token_embeddings = token_emb(context_tokens) + pos_emb(max_seq_len)
+    x_emb = attention(current_token_embeddings,context_token_embeddings)
     print(x_emb.shape)
 
 
