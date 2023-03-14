@@ -18,8 +18,7 @@ class Attention(SingleQueryAttention):
         q = self.query(current_tokens).T
         k = self.key(context_tokens).T
         v = self.value(context_tokens).T
-
-        att = q.T @ k / math.sqrt(self.atten_dim)
+        att = torch.einsum('ijk,ijk->ik', [q,k]) / math.sqrt(self.atten_dim)
         # hugging face implementation: https://tinyurl.com/22f9b6y
         if attention_mask is not None:
             # Apply the attention mask
@@ -27,7 +26,7 @@ class Attention(SingleQueryAttention):
             att = att + attention_mask
         
         att = F.softmax(att, dim=-1)
-        v = v @ att
+        v = torch.einsum('ijk,ik->jk',[v, att])
         return v.T
 
 def main():
