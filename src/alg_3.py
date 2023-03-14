@@ -32,7 +32,7 @@ def main():
     vocab_size = 10000
     token_emb = TokenEmbedding(vocab_size, embed_dim)
     pos_emb = PositionEmbedding(max_seq_len, embed_dim)
-    attention = SingleQueryAttention(50, 50, 50)
+    attention = SingleQueryAttention(embed_dim, embed_dim, embed_dim)
 
     batch_size=32
     current_token = torch.randint(0,vocab_size, size = (batch_size, 1)) 
