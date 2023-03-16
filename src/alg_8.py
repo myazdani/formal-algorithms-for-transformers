@@ -112,4 +112,6 @@ if __name__ == "__main__":
     x_ids = torch.randint(0,vocab_size, size = (bs*2, max_seq_len))
     output = ed_seq2seq(z_ids, x_ids)
     print(output.size())
+    probs = output.gather(dim=2, index=x_ids.unsqueeze(-1)).squeeze(-1)
+    print(probs.size())
 
