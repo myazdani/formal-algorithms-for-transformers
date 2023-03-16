@@ -80,14 +80,15 @@ class EDTransformer(nn.Module):
 
 
     def forward(self, z, x=None):
-        z = self.token_emb(z) + self.pos_emb(len(z))
+        lz = z.size()[1] #max seq len
+        z = self.token_emb(z) + self.pos_emb(lz)[None,:,:]
         for name, layer in self.encoder_layers.named_children():
             if "attention" in name:
                 z = layer(z, z)
             else:
                 z = layer(z)
-        lx = len(x)
-        x = self.token_emb(x) + self.pos_emb(len(x))
+        lx = x.size()[1] #max seq len
+        x = self.token_emb(x) + self.pos_emb(lx)[None,:,:]
         for name, layer in self.decoder_layers.named_children():
             if "dec_attention1" in name:
                 mask = torch.tril(torch.ones(lx, lx))
@@ -106,6 +107,9 @@ if __name__ == "__main__":
     ed_seq2seq = EDTransformer(embed_dim=embed_dim, mlp_dim=32, max_seq_len=max_seq_len,
                                 L_dec=3, L_enc=3, vocab_size=vocab_size, num_heads=3)
 
-    z_ids = torch.tensor([43, 32, 21])  
-    x_ids = torch.tensor([4, 13, 1])  
-    print(ed_seq2seq(z_ids, x_ids))
+    bs = 32
+    z_ids = torch.randint(0,vocab_size, size = (bs*2, max_seq_len)) 
+    x_ids = torch.randint(0,vocab_size, size = (bs*2, max_seq_len))
+    output = ed_seq2seq(z_ids, x_ids)
+    print(output.size())
+
