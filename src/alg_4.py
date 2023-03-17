@@ -26,7 +26,7 @@ class Attention(SingleQueryAttention):
             att = att + attention_mask[None,:,:]
         
         att = F.softmax(att, dim=-1)
-        v = torch.einsum('ijk,ijl->ijk',[v, att])
+        v = torch.einsum('ijk,ilm->ilk',[v, att])
         return v
 
 def main():
@@ -38,12 +38,15 @@ def main():
     attention = Attention(embed_dim, embed_dim, embed_dim)
     batch_size=32
     idx = torch.randint(0,vocab_size, size = (batch_size, max_seq_len)) 
-    token_embeddings = token_emb(idx)
-    position_embeddings = pos_emb(max_seq_len)
-    x = position_embeddings[None,:,:] + token_embeddings
-    print(x.shape)
-    mask = torch.tril(torch.ones(max_seq_len, max_seq_len))
-    x_emb = attention(x,x, mask.masked_fill(mask==0, float('-inf')))
+    idz = torch.randint(0,vocab_size, size = (batch_size, max_seq_len//2)) 
+    x = token_emb(idx) + pos_emb(max_seq_len) # current token representations
+    z = token_emb(idz) + pos_emb(max_seq_len//2) # context token reps.    
+    print(f"x shape: {x.shape}")
+    print(f"z shape: {z.shape}")
+    mask = torch.tril(torch.ones(max_seq_len, max_seq_len//2))
+    # updated representation of x folding in information from z
+    x_emb = attention(x,z, mask.masked_fill(mask==0, float('-inf'))) 
+
     print(x_emb.shape)
 
 
