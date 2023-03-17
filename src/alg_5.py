@@ -42,11 +42,12 @@ def main():
     attention = MHAttentionInefficient(3, embed_dim, embed_dim, embed_dim)
     batch_size=32
     idx = torch.randint(0,vocab_size, size = (batch_size, max_seq_len)) 
-    token_embeddings = token_emb(idx)
-    position_embeddings = pos_emb(max_seq_len)
-    x = position_embeddings + token_embeddings
-    print(x.shape)
-    x_emb = attention(x,x)
+    idz = torch.randint(0,vocab_size, size = (batch_size, max_seq_len//2)) 
+    x = token_emb(idx) + pos_emb(max_seq_len) # current token representations
+    z = token_emb(idz) + pos_emb(max_seq_len//2) # context token reps.    
+    print(f"x shape: {x.shape}")
+    print(f"z shape: {z.shape}")
+    x_emb = attention(x,z)
     print(x_emb.shape)
 
 
