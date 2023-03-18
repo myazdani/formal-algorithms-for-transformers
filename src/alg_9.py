@@ -54,7 +54,8 @@ class ETransformer(nn.Module):
         self.unembed = TokenUnembedding(vocab_size, output_dim)
 
     def forward(self, x):
-        x = self.token_emb(x) + self.pos_emb(len(x))
+        lx = x.size()[1] #max seq len
+        x = self.token_emb(x) + self.pos_emb(lx)[None,:,:]
         for name, layer in self.encoder_layers.named_children():
             if "attention" in name:
                 x = layer(x, x)
@@ -73,5 +74,6 @@ if __name__ == "__main__":
                                        L_enc=3, vocab_size=vocab_size, 
                                        output_dim=16,num_heads=3)
 
-    x_ids = torch.tensor([43, 32, 21])  
+    bs = 32
+    x_ids = torch.randint(0,vocab_size, size = (bs, max_seq_len)) 
     print(encoder_transformer(x_ids))        
