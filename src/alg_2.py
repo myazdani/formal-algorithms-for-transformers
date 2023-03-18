@@ -18,6 +18,9 @@ class PositionEmbedding(nn.Module):
 if __name__ == "__main__":
     max_seq_len = 512
     embed_dim = 50
+    vocab_size=100
+    batch_size = 32
+    idx = torch.randint(0,vocab_size, size = (batch_size, max_seq_len))    
     pos_emb = PositionEmbedding(max_seq_len, embed_dim)
-    position_embeddings = pos_emb(123)
+    position_embeddings = pos_emb(max_seq_len)
     print(position_embeddings.shape)
