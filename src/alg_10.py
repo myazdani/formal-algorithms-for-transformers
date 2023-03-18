@@ -54,8 +54,8 @@ class DTransformer(nn.Module):
 
 
     def forward(self, x):
-        x = self.token_emb(x) + self.pos_emb(len(x))
-        lx = len(x)
+        lx = x.size()[1] #max seq len        
+        x = self.token_emb(x) + self.pos_emb(lx)[None,:,:]
         for name, layer in self.decoder_layers.named_children():
             if "dec_attention_layer_" in name:
                 mask = torch.tril(torch.ones(lx, lx))
@@ -73,5 +73,7 @@ if __name__ == "__main__":
     ed_seq2seq = DTransformer(embed_dim=embed_dim, mlp_dim=32, max_seq_len=max_seq_len,
                                 L_dec=3, vocab_size=vocab_size, num_heads=3)
 
-    x_ids = torch.tensor([4, 13, 1])  
+
+    bs = 32
+    x_ids = torch.randint(0,vocab_size, size = (bs, max_seq_len)) 
     print(ed_seq2seq(x_ids))
