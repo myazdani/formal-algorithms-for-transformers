@@ -1,15 +1,3 @@
-"""
-\begin{algorithm}[h] 
-    \DontPrintSemicolon
-    \KwIn{$v∈V\cong[N_\t{V}]$, a token ID.}
-    \KwOut{$\v{e}∈ℝ^{d_\t{e}}$, the vector representation of the token.}
-    \KwParam{$\m{W_e}∈ℝ^{d_\t{e}×N_\t{V}}$, the token embedding matrix.}
-    \Return $\v{e} = \m{W_e}[:,v]$
-    \caption{Token embedding.}
-    \label{algo:token_embedding}
-\end{algorithm}
-"""
-
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -30,6 +18,9 @@ if __name__ == "__main__":
     vocab_size = 10000
     embed_dim = 50
     token_emb = TokenEmbedding(vocab_size, embed_dim)
-    idx = torch.tensor([1, 2])
+    vocab_size=100
+    batch_size = 32
+    seq_len=128
+    idx = torch.randint(0,vocab_size, size = (batch_size, seq_len))
     idx_embeding = token_emb(idx)
     print(idx_embeding.shape)
