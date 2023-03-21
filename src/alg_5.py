@@ -30,56 +30,27 @@ class MHAttentionInefficient(nn.Module):
 
         return y
     
-# write a unit test for MHAttentionIneffcient 
-
-
-def main():
-    max_seq_len = 512
-    embed_dim = 50
-    vocab_size = 10000
-    token_emb = TokenEmbedding(vocab_size, embed_dim)
-    pos_emb = PositionEmbedding(max_seq_len, embed_dim)
-    attention = MHAttentionInefficient(3, embed_dim, embed_dim, embed_dim)
-    batch_size=32
-    idx = torch.randint(0,vocab_size, size = (batch_size, max_seq_len)) 
-    idz = torch.randint(0,vocab_size, size = (batch_size, max_seq_len//2)) 
-    x = token_emb(idx) + pos_emb(max_seq_len) # current token representations
-    z = token_emb(idz) + pos_emb(max_seq_len//2) # context token reps.    
-    print(f"x shape: {x.shape}")
-    print(f"z shape: {z.shape}")
-    x_emb = attention(x,z)
-    print(x_emb.shape)
-
-
 class TestMHAttentionInefficient(unittest.TestCase):
-
     def setUp(self):
-        self.mha = MHAttentionInefficient()
+        # initialize objects that will be used in the tests
+        self.max_seq_len = 512
+        self.embed_dim = 50
+        self.vocab_size = 10000
+        self.token_emb = TokenEmbedding(vocab_size=self.vocab_size, embed_dim=self.embed_dim)
+        self.pos_emb = PositionEmbedding(self.max_seq_len, self.embed_dim)
+        self.attention = MHAttentionInefficient(num_heads=3, input_dim=self.embed_dim, 
+                                                atten_dim=self.embed_dim, output_dim=self.embed_dim)
 
-    def test_query_shape(self):
-        query = [[1,2,3], [4,5,6]]
-        self.assertEqual(self.mha.query_shape(query), (2, 3))
+    def test_shape(self):
+        # test that the output shape is as expected
+        batch_size=32
+        idx = torch.randint(0,self.vocab_size, size = (batch_size, self.max_seq_len)) 
+        idz = torch.randint(0,self.vocab_size, size = (batch_size, self.max_seq_len//2)) 
+        x = self.token_emb(idx) + self.pos_emb(self.max_seq_len) # current token representations
+        z = self.token_emb(idz) + self.pos_emb(self.max_seq_len//2) # context token reps.    
+        y = self.attention(x,z)
+        self.assertEqual(y.shape, (batch_size, self.max_seq_len, self.embed_dim))
 
-    def test_key_shape(self):
-        key = [[1,2], [3,4], [5,6]]
-        self.assertEqual(self.mha.key_shape(key), (3, 2))
-
-    def test_value_shape(self):
-        value = [[1], [2], [3]]
-        self.assertEqual(self.mha.value_shape(value), (3, 1))
-
-    def test_attention_weights(self):
-        query = [[1,2], [3,4]]  # shape: (2, 2) 
-        key = [[1,2], [3,4], [5,6]]  # shape: (3 , 2) 
-        value = [[1], [2], [3]]  # shape: (3 , 1) 
-
-        expected_weights = [[0.5 , 0 , 0] ,[0 , 0.5 , 0]]   # shape: (2 , 3) 
-
-        weights = self.mha._attention_weights(query=query , key=key , value=value)
-
-        self.assertEqual(weights[0][0] , expected_weights[0][0])   # first element of weights should be equal to first element of expected weights 
-        self.assertEqual(weights[0][1] , expected_weights[0][1])   # second element of weights should be equal to second element of expected weights 
-        												           # and so on...
 
 if __name__ == "__main__":
-    main()
+    unittest.main()
