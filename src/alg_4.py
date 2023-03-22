@@ -3,9 +3,9 @@ import torch.nn as nn
 from torch.nn import functional as F
 import math
 
-from alg_2 import PositionEmbedding
-from alg_1 import TokenEmbedding
-from alg_3 import SingleQueryAttention
+from src.alg_2 import PositionEmbedding
+from src.alg_1 import TokenEmbedding
+from src.alg_3 import SingleQueryAttention
 
 
 class Attention(SingleQueryAttention):
