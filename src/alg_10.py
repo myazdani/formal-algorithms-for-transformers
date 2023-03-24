@@ -2,11 +2,11 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from alg_2 import PositionEmbedding
-from alg_1 import TokenEmbedding
-from alg_5 import MHAttentionInefficient
-from alg_6 import LayerNorm
-from alg_7 import TokenUnembedding
+from src.alg_2 import PositionEmbedding
+from src.alg_1 import TokenEmbedding
+from src.alg_5 import MHAttentionInefficient
+from src.alg_6 import LayerNorm
+from src.alg_7 import TokenUnembedding
 
 
 class DTransformer(nn.Module):
@@ -76,4 +76,4 @@ if __name__ == "__main__":
 
     bs = 32
     x_ids = torch.randint(0,vocab_size, size = (bs, max_seq_len)) 
-    print(ed_seq2seq(x_ids))
+    print(ed_seq2seq(x_ids).size())
