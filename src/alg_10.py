@@ -51,6 +51,8 @@ class DTransformer(nn.Module):
 
         self.layer_norm = LayerNorm(embed_dim)
         self.unembed = TokenUnembedding(vocab_size, embed_dim)
+        self.register_buffer("mask", torch.tril(torch.ones(self.max_seq_len, self.max_seq_len))
+                                    .view(1, self.max_seq_len, self.max_seq_len))        
 
 
     def forward(self, x):
@@ -58,8 +60,8 @@ class DTransformer(nn.Module):
         x = self.token_emb(x) + self.pos_emb(lx)[None,:,:]
         for name, layer in self.decoder_layers.named_children():
             if "dec_attention_layer_" in name:
-                mask = torch.tril(torch.ones(lx, lx))
-                x = layer(x,x, mask.masked_fill(mask==0, float('-inf'))) 
+                #mask = torch.tril(torch.ones(lx, lx))
+                x = layer(x,x, self.mask.masked_fill(self.mask==0, float('-inf'))) 
             else:
                 x = layer(x)
         x = self.layer_norm(x)

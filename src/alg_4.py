@@ -23,7 +23,7 @@ class Attention(SingleQueryAttention):
         if attention_mask is not None:
             # Apply the attention mask
             # att = torch.where(mask, att, self.masked_bias)
-            att = att + attention_mask[None,:,:]
+            att = att + attention_mask
         
         att = F.softmax(att, dim=-1)
         v = torch.einsum('ijk,ilm->ilk',[v, att])
