@@ -2,11 +2,11 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from alg_2 import PositionEmbedding
-from alg_1 import TokenEmbedding
-from alg_5 import MHAttentionInefficient
-from alg_6 import LayerNorm
-from alg_7 import TokenUnembedding
+from src.alg_2 import PositionEmbedding
+from src.alg_1 import TokenEmbedding
+from src.alg_5 import MHAttentionInefficient
+from src.alg_6 import LayerNorm
+from src.alg_7 import TokenUnembedding
 
 
 class EDTransformer(nn.Module):
@@ -109,9 +109,8 @@ if __name__ == "__main__":
 
     bs = 32
     z_ids = torch.randint(0,vocab_size, size = (bs*2, max_seq_len)) 
-    x_ids = torch.randint(0,vocab_size, size = (bs*2, max_seq_len))
+    x_ids = torch.randint(0,vocab_size, size = (bs*2, 1))
     output = ed_seq2seq(z_ids, x_ids)
     print(output.size())
     probs = output.gather(dim=2, index=x_ids.unsqueeze(-1)).squeeze(-1)
     print(probs.size())
-
