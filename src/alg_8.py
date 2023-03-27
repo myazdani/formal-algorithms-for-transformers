@@ -77,6 +77,8 @@ class EDTransformer(nn.Module):
             self.decoder_layers.add_module(f"dec_layer_norm3_layer_{i}", layer_norm_5)
 
         self.unembed = TokenUnembedding(vocab_size, embed_dim)
+        self.register_buffer("mask", torch.tril(torch.ones(self.max_seq_len, self.max_seq_len))
+                                    .view(1, self.max_seq_len, self.max_seq_len)) 
 
 
     def forward(self, z, x=None):
@@ -90,9 +92,8 @@ class EDTransformer(nn.Module):
         lx = x.size()[1] #max seq len
         x = self.token_emb(x) + self.pos_emb(lx)[None,:,:]
         for name, layer in self.decoder_layers.named_children():
-            if "dec_attention1" in name:
-                mask = torch.tril(torch.ones(lx, lx))
-                x = layer(x,x, mask.masked_fill(mask==0, float('-inf'))) 
+            if "dec_attention1" in name:                
+                x = layer(x,x, self.mask.masked_fill(self.mask==0, float('-inf'))) 
             elif "dec_attention2" in name:
                 x = layer(x,z)
             else:
