@@ -60,7 +60,6 @@ class DTransformer(nn.Module):
         x = self.token_emb(x) + self.pos_emb(lx)[None,:,:]
         for name, layer in self.decoder_layers.named_children():
             if "dec_attention_layer_" in name:
-                #mask = torch.tril(torch.ones(lx, lx))
                 x = layer(x,x, self.mask.masked_fill(self.mask==0, float('-inf'))) 
             else:
                 x = layer(x)
