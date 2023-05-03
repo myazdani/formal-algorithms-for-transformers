@@ -2,9 +2,9 @@
 
 PyTorch implementation of transformer algorithms described in "Formal Algorithms for Transformers" by Mary Phuong and Marcus Hutter:  https://arxiv.org/abs/2207.09238
 
-[Algorithm 1](https://github.com/myazdani/formal-algorithms-for-transformers/blob/main/src/alg_1.py): token embedding
+[Algorithm 1](https://github.com/myazdani/formal-algorithms-for-transformers/blob/main/src/alg_1.py): Token embedding
 
-[Algorithm 2](https://github.com/myazdani/formal-algorithms-for-transformers/blob/main/src/alg_2.py): positional embedding
+[Algorithm 2](https://github.com/myazdani/formal-algorithms-for-transformers/blob/main/src/alg_2.py): Positional embedding
 
 [Algorithm 3](https://github.com/myazdani/formal-algorithms-for-transformers/blob/main/src/alg_3.py): Basic single-query attention
 
